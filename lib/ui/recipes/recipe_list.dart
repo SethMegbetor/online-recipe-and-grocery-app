@@ -126,7 +126,8 @@ class _RecipeListState extends State<RecipeList> {
                   Expanded(
                       child: TextField(
                     decoration: const InputDecoration(
-                        border: InputBorder.none, hintText: 'Search'),
+                        border: InputBorder.none,
+                        hintText: 'Search for a meal'),
                     autofocus: false,
                     textInputAction: TextInputAction.done,
                     onSubmitted: (value) {
