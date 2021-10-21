@@ -6,9 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../data/models/models.dart';
-import '../../mock_service/mock_service.dart';
 import '../../network/model_response.dart';
 import '../../network/recipe_model.dart';
+import '../../network/service_interface.dart';
 import '../colors.dart';
 import '../recipe_card.dart';
 import '../recipes/recipe_details.dart';
@@ -115,10 +115,6 @@ class _RecipeListState extends State<RecipeList> {
               icon: const Icon(Icons.search),
               onPressed: () {
                 startSearch(searchTextController.text);
-                final currentFocus = FocusScope.of(context);
-                if (!currentFocus.hasPrimaryFocus) {
-                  currentFocus.unfocus();
-                }
               },
             ),
             const SizedBox(
@@ -195,8 +191,7 @@ class _RecipeListState extends State<RecipeList> {
       return Container();
     }
     return FutureBuilder<Response<Result<APIRecipeQuery>>>(
-      // TODO: replace with new interface
-      future: Provider.of<MockService>(context).queryRecipes(
+      future: Provider.of<ServiceInterface>(context).queryRecipes(
           searchTextController.text.trim(),
           currentStartPosition,
           currentEndPosition),
@@ -221,13 +216,11 @@ class _RecipeListState extends State<RecipeList> {
           }
           final query = (result as Success).value;
           inErrorState = false;
-          if (query != null) {
-            currentCount = query.count;
-            hasMore = query.more;
-            currentSearchList.addAll(query.hits);
-            if (query.to < currentEndPosition) {
-              currentEndPosition = query.to;
-            }
+          currentCount = query.count;
+          hasMore = query.more;
+          currentSearchList.addAll(query.hits);
+          if (query.to < currentEndPosition) {
+            currentEndPosition = query.to;
           }
           return _buildRecipeList(context, currentSearchList);
         } else {
@@ -268,7 +261,7 @@ class _RecipeListState extends State<RecipeList> {
     final recipe = hits[index].recipe;
     return GestureDetector(
       onTap: () {
-        Navigator.push(topLevelContext, MaterialPageRoute(
+        Navigator.push(context, MaterialPageRoute(
           builder: (context) {
             final detailRecipe = Recipe(
                 label: recipe.label,
